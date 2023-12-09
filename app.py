@@ -1,7 +1,23 @@
+import os
 import time
 import board
 import RPi.GPIO as GPIO
 import neopixel
+from dotenv import load_dotenv
+from pathlib import Path
+
+dotenv_path = Path(f'/home/calvin/App/.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+APP_PATH = os.getenv('APP_PATH')
+BANKS_PATH = os.getenv('BANKS_PATH')
+BANK_COUNT = os.getenv('BANK_COUNT')
+
+for x in range(1, int(BANK_COUNT)):
+    path = f'{BANKS_PATH}/{str(x).zfill(2)}'
+    print(f'create path {path}')
+    # Create directory /path/to/nested/directory if it doesn't already exist
+    os.makedirs(path, exist_ok=True)
 
 pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
 
