@@ -6,21 +6,24 @@
       <input type="file" name="file" />
       <input type="submit" value="Upload" />
     </form>
-    <h4>files:</h4>
+    <h2>banks:</h2>
+    {% for bank in banks %}
+      <h4>bank {{loop.index}}</h4>
       <table>
-        {% for file in files %}
-	  <tr>
+        {% for file in bank %}
+          <tr>
             <td>
               <p>{{ file }}</p>
-	    </td>
-	    <td>
-	      <form method="post" action="/delete" enctype="multipart/form-data">
-                <input type="hidden" name="file" value="{{file}}" />
-  		<input type=submit name=delete value=delete />
+            </td>
+            <td>
+              <form method="post" action="/delete" enctype="multipart/form-data">
+		  <input type="hidden" name="file" value="{{file}}" />
+                  <input type=submit name=delete value=delete />
               </form>
-	    </td>
-	  </tr>
+            </td>
+          </tr>
         {% endfor %}
       </table>
+    {% endfor %}
   </body>
 </html>

@@ -7,26 +7,37 @@ from flask import Flask, flash, render_template, Response, request
 from dotenv import load_dotenv
 from pathlib import Path
 
-APP_PATH = '/home/calvin/App'
-BANKS_PATH = f'{APP_PATH}/__CONTENT'
-
-dotenv_path = Path(f'{APP_PATH}/.env')
+dotenv_path = Path(f'/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
+
+APP_PATH = os.getenv('APP_PATH')
+BANKS_PATH = os.getenv('BANKS_PATH')
+BANK_COUNT = os.getenv('BANK_COUNT');
+BANK_SIZE = os.getenv('BANK_SIZE');
 
 app=Flask(__name__)
 
-def bank_path(index):
-    paddedIndex = str(index).zfill(2)
-    return f'{BANKS_PATH}/{paddedIndex}';
+def bank_path(bankIndex):
+    paddedBankIndex = str(bankIndex).zfill(2)
+    return f'{BANKS_PATH}/{paddedBankIndex}';
+
+def video_path(bankIndex, videoIndex):
+    paddedVideoIndex = str(videoIndex).zfill(2)
+    return f'{bank_path(bankIndex)}/{paddedVideoindex}';
 
 def allowed_file(filename):
     return Path(filename).suffix == '.mp4'
 
 @app.route('/')
 def index():
-    bank_path_1 = bank_path(1)
-    onlyfiles = [f for f in listdir(bank_path_1) if isfile(join(bank_path_1, f))]
-    return render_template('index.html', files=onlyfiles)
+    banks = []
+
+    for bank_index in range(1, int(BANK_COUNT)):
+        bpath = bank_path(bank_index)
+        bank_files = [f for f in listdir(bpath) if isfile(join(bpath, f))]
+        banks.append(bank_files)
+
+    return render_template('index.html', banks=banks)
 
 @app.route('/upload', methods = ['POST'])
 def upload():
