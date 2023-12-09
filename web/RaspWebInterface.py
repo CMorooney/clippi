@@ -3,7 +3,7 @@ from os import listdir
 from os.path import isfile, join
 from pathlib import Path
 import RPi.GPIO as GPIO
-from flask import Flask, flash, render_template, Response, request
+from flask import Flask, flash, render_template, Response, request, redirect, url_for
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -68,7 +68,7 @@ def upload():
                     p = f'{bank_path(bank_index)}/{f.filename}'
                     f.save(p)
 
-        return index()
+        return redirect(url_for('index'))
 
 @app.route('/delete', methods = ['POST'])
 def delete():
@@ -77,7 +77,7 @@ def delete():
         fileName = form_data.get('file')
         bankIndex = form_data.get('bank')
         os.remove(f'{bank_path(bankIndex)}/{fileName}')
-        return index()
+        return redirect(url_for('index'))
 
 if __name__=='__main__':
     app.secret_key = os.getenv('WEB_APP_SECRET_KEY')
