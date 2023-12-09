@@ -1,7 +1,15 @@
 voltage-controlled Video clip player for video synth fodder
 
+The clip-player app will start automatically on pi boot
 
-on power up/after network connection there should be a local web site accessible for managing clips
+the auto-start is registered as `player.service` in
+> /lib/systemd/system/
+
+(followed instructions [here](https://www.makeuseof.com/what-is-systemd-launch-programs-raspberry-pi/))
+
+all the boot service does is start `app.py`
+
+after the clip-player app starts a LAN website/server should start. check web/README.
 
 
 note -- in order for this to succeed there must be an `.env` file at App root with the folling variables
