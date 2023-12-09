@@ -4,11 +4,23 @@
   <body>
     <form action = "/upload" method = "post" enctype="multipart/form-data">
       <input type="file" name="file" />
-      <input type = "submit" value="Upload">
+      <input type="submit" value="Upload" />
     </form>
     <h4>files:</h4>
-    {% for file in files %}
-      <p>{{ file }}</p>
-    {% endfor %}
+      <table>
+        {% for file in files %}
+	  <tr>
+            <td>
+              <p>{{ file }}</p>
+	    </td>
+	    <td>
+	      <form method="post" action="/delete" enctype="multipart/form-data">
+                <input type="hidden" name="file" value="{{file}}" />
+  		<input type=submit name=delete value=delete />
+              </form>
+	    </td>
+	  </tr>
+        {% endfor %}
+      </table>
   </body>
 </html>

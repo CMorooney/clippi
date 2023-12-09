@@ -49,6 +49,14 @@ def upload():
 
         return index()
 
+@app.route('/delete', methods = ['POST'])
+def delete():
+    if request.method == 'POST':
+        form_data = request.form
+        fileName = form_data.get('file')
+        os.remove(f'{bank_path(1)}/{fileName}')
+        return index()
+
 if __name__=='__main__':
     app.secret_key = os.getenv('WEB_APP_SECRET_KEY')
     os.system("sudo rm -r  ~/.cache/chromium/Default/Cache/*")
