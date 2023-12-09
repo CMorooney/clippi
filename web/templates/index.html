@@ -2,8 +2,14 @@
   <head>
   </head>
   <body>
-    <form action = "/upload" method = "post" enctype="multipart/form-data">
+    <h2>upload:</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
       <input type="file" name="file" />
+      <select name="bank">
+        {% for bank in banks %}
+	  <option value={{loop.index}}>{{loop.index}}</option>
+        {% endfor %}
+        </select>
       <input type="submit" value="Upload" />
     </form>
     <h2>banks:</h2>

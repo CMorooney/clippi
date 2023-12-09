@@ -12,27 +12,32 @@ load_dotenv(dotenv_path=dotenv_path)
 
 APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
-BANK_COUNT = os.getenv('BANK_COUNT');
-BANK_SIZE = os.getenv('BANK_SIZE');
+BANK_COUNT = os.getenv('BANK_COUNT')
+BANK_SIZE = os.getenv('BANK_SIZE')
 
 app=Flask(__name__)
 
 def bank_path(bankIndex):
     paddedBankIndex = str(bankIndex).zfill(2)
-    return f'{BANKS_PATH}/{paddedBankIndex}';
+    return f'{BANKS_PATH}/{paddedBankIndex}'
 
 def video_path(bankIndex, videoIndex):
     paddedVideoIndex = str(videoIndex).zfill(2)
-    return f'{bank_path(bankIndex)}/{paddedVideoindex}';
+    return f'{bank_path(bankIndex)}/{paddedVideoindex}'
 
 def allowed_file(filename):
     return Path(filename).suffix == '.mp4'
+
+def is_bank_full(index):
+    bpath = bank_path(index)
+    bank_files = [f for f in listdir(bpath) if isfile(join(bpath, f))]
+    return len(bank_files) == BANK_SIZE
 
 @app.route('/')
 def index():
     banks = []
 
-    for bank_index in range(1, int(BANK_COUNT)):
+    for bank_index in range(1, int(BANK_COUNT) + 1):
         bpath = bank_path(bank_index)
         bank_files = [f for f in listdir(bpath) if isfile(join(bpath, f))]
         banks.append(bank_files)
@@ -47,16 +52,21 @@ def upload():
             return 'No file part'
         else:
             f = request.files['file']
+            form_data = request.form
+            bank_index = form_data.get('bank')
 
             # If the user does not select a file, the browser submits an
             # empty file without a filename.
             if f.filename == '':
                 return 'No selected file'
             else:
-                if f and allowed_file(f.filename):
-                    f.save(f'{bank_path(1)}/{f.filename}')
-                else:
+                if not allowed_file(f.filename):
                     return f'only .mp4 h264 files allowed {f.filename}'
+                elif is_bank_full(bank_index):
+                    return f'bank {bank_index} is full (max {BANK_SIZE})'
+                else:
+                    p = f'{bank_path(bank_index)}/{f.filename}'
+                    f.save(p)
 
         return index()
 

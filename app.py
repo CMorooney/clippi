@@ -13,11 +13,16 @@ APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = os.getenv('BANK_COUNT')
 
-for x in range(1, int(BANK_COUNT)):
+
+for x in range(1, int(BANK_COUNT) + 1):
     path = f'{BANKS_PATH}/{str(x).zfill(2)}'
     print(f'create path {path}')
     # Create directory /path/to/nested/directory if it doesn't already exist
-    os.makedirs(path, exist_ok=True)
+    try:
+        original_umask = os.umask(0)
+        os.makedirs(path, mode=0o777, exist_ok=True)
+    finally:
+        os.umask(original_umask)
 
 pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
 
