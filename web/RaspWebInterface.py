@@ -4,11 +4,16 @@ from os.path import isfile, join
 from pathlib import Path
 import RPi.GPIO as GPIO
 from flask import Flask, flash, render_template, Response, request
-import datetime
+from dotenv import load_dotenv
+from pathlib import Path
+
+APP_PATH = '/home/calvin/App'
+BANKS_PATH = f'{APP_PATH}/__CONTENT'
+
+dotenv_path = Path(f'{APP_PATH}/.env')
+load_dotenv(dotenv_path=dotenv_path)
 
 app=Flask(__name__)
-
-BANKS_PATH = '/home/calvin/App/__CONTENT'
 
 def bank_path(index):
     paddedIndex = str(index).zfill(2)
@@ -45,5 +50,6 @@ def upload():
         return index()
 
 if __name__=='__main__':
+    app.secret_key = os.getenv('WEB_APP_SECRET_KEY')
     os.system("sudo rm -r  ~/.cache/chromium/Default/Cache/*")
     app.run(debug=True, port=5000, host='0.0.0.0',threaded=True)
