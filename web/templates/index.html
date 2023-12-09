@@ -14,6 +14,7 @@
     </form>
     <h2>banks:</h2>
     {% for bank in banks %}
+      {% set outer_loop = loop %}
       <h4>bank {{loop.index}}</h4>
       <table>
         {% for file in bank %}
@@ -24,6 +25,7 @@
             <td>
               <form method="post" action="/delete" enctype="multipart/form-data">
 		  <input type="hidden" name="file" value="{{file}}" />
+		  <input type="hidden" name="bank" value="{{outer_loop.index}}" />
                   <input type=submit name=delete value=delete />
               </form>
             </td>

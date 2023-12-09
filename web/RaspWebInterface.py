@@ -75,7 +75,8 @@ def delete():
     if request.method == 'POST':
         form_data = request.form
         fileName = form_data.get('file')
-        os.remove(f'{bank_path(1)}/{fileName}')
+        bankIndex = form_data.get('bank')
+        os.remove(f'{bank_path(bankIndex)}/{fileName}')
         return index()
 
 if __name__=='__main__':
