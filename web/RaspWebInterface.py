@@ -49,7 +49,7 @@ def upload():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            return 'No file part'
+            flash('No file')
         else:
             f = request.files['file']
             form_data = request.form
@@ -58,12 +58,12 @@ def upload():
             # If the user does not select a file, the browser submits an
             # empty file without a filename.
             if f.filename == '':
-                return 'No selected file'
+                flash('No selected file')
             else:
                 if not allowed_file(f.filename):
-                    return f'only .mp4 h264 files allowed {f.filename}'
+                    flash(f'only .mp4 h264 files allowed {f.filename})')
                 elif is_bank_full(bank_index):
-                    return f'bank {bank_index} is full (max {BANK_SIZE})'
+                    flash(f'bank {bank_index} is full (max {BANK_SIZE})')
                 else:
                     p = f'{bank_path(bank_index)}/{f.filename}'
                     f.save(p)
