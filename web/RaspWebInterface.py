@@ -132,7 +132,7 @@ def rename():
         bpath = bank_path(bIndex)
         vpath = clip_path(bIndex, cIndex)
 
-        os.rename(vpath, f'{bpath}/{str(cIndex).zfill(2)}__{newName}');
+        os.rename(vpath, f'{bpath}/{str(cIndex).zfill(2)}__{sanitize_clip_name(newName)}');
 
         return redirect(url_for('index'))
 
@@ -150,8 +150,8 @@ def moveup():
         new_filename_moving_up = f"{str(cIndex - 1).zfill(2)}__{filename_moving_up.split(f'{str(cIndex).zfill(2)}__')[1]}"
         new_filename_moving_down = f"{str(cIndex).zfill(2)}__{filename_moving_down.split(f'{str(cIndex - 1).zfill(2)}__')[1]}"
 
-        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{new_filename_moving_up}')
-        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{new_filename_moving_down}')
+        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{sanitize_clip_name(new_filename_moving_up)}')
+        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{sanitize_clip_name(new_filename_moving_down)}')
 
         return redirect(url_for('index'))
 
@@ -169,8 +169,8 @@ def movedown():
         new_filename_moving_down = f"{str(cIndex + 1).zfill(2)}__{filename_moving_down.split(f'{str(cIndex).zfill(2)}__')[1]}"
         new_filename_moving_up = f"{str(cIndex).zfill(2)}__{filename_moving_up.split(f'{str(cIndex + 1).zfill(2)}__')[1]}"
 
-        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{new_filename_moving_up}')
-        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{new_filename_moving_down}')
+        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{sanitize_clip_name(new_filename_moving_up)}')
+        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{sanitize_clip_name(new_filename_moving_down)}')
 
         return redirect(url_for('index'))
 
