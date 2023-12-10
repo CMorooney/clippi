@@ -32,7 +32,8 @@
     </div>
 
     <div class="upload-section">
-      <form id="upload-form" style="display: none" action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+      <form id="upload-form" style="display: none" action="/upload" method="post" enctype="multipart/form-data"
+        onsubmit="showLoader()">
         <div class="form-input-container">
           <label for="upload-form-file">File:</label>
           <input id="upload-form-file" type="file" name="file" />
@@ -48,7 +49,8 @@
         <input type="submit" value="Upload" />
       </form>
 
-      <form id="youtube-form" action="/addFromYoutube" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+      <form id="youtube-form" action="/addFromYoutube" method="post" enctype="multipart/form-data"
+        onsubmit="showLoader()">
         <div class="form-input-container">
           <label for="youtube-form-link">url:</label>
           <input id="youtube-form-link" type="input" name="link" />
@@ -85,6 +87,11 @@
             <input type=submit name=delete value=delete />
           </form>
         </td>
+        <td>
+          <button onclick="showRenameInput('{{file}}', '{{loop.index}}', '{{outer_loop.index}}')">
+            rename
+          </button>
+        </td>
       </tr>
       {% else %}
       <i>none</i>
@@ -95,7 +102,24 @@
 
 
   <div id="loadingModal" class="modalWindow">
-    <div class="loader">
+    <div class="modalContent">
+      <div class="loader">
+      </div>
+    </div>
+  </div>
+
+  <div id="renameModal" class="modalWindow">
+    <div class="modalContent">
+      <form id="rename-form" action="/rename" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+        <div class="form-input-container">
+          <label for="new-file-name">name:</label>
+          <input id="new-file-name" type="input" name="new-name" />
+        </div>
+        <input id="rename-file-clip-index" type="hidden" name="clip-index" />
+        <input id="rename-file-bank-index" type="hidden" name="bank-index" />
+        <br />
+        <input type="submit" value="submit" />
+      </form>
     </div>
   </div>
 

@@ -22,9 +22,13 @@ def bank_path(bankIndex):
     paddedBankIndex = str(bankIndex).zfill(2)
     return f'{BANKS_PATH}/{paddedBankIndex}'
 
-def video_path(bankIndex, videoIndex):
-    paddedVideoIndex = str(videoIndex).zfill(2)
-    return f'{bank_path(bankIndex)}/{paddedVideoindex}'
+def clip_path(bankIndex, clipIndex):
+    paddedClipIndex = str(clipIndex).zfill(2)
+
+    bDir = Path(bank_path(bankIndex))
+
+    fileNames = [file.name for file in bDir.iterdir() if file.name.startswith(f'{paddedClipIndex}__')]    
+    return f'{bank_path(bankIndex)}/{fileNames[0]}'
 
 def allowed_file(filename):
     return Path(filename).suffix == '.mp4'
@@ -102,6 +106,23 @@ def addFromYoutube():
             ydl.download(link)
 
         return redirect(url_for('index'))
+
+@app.route('/rename', methods = ['POST'])
+def rename():
+    if request.method == 'POST':
+        form_data = request.form
+
+        newName = form_data.get('new-name')
+
+        bIndex = int(form_data.get('bank-index'))
+        cIndex = int(form_data.get('clip-index'))
+        bpath = bank_path(bIndex)
+        vpath = clip_path(bIndex, cIndex)
+
+        os.rename(vpath, f'{bpath}/{str(cIndex).zfill(2)}__{newName}');
+
+        return redirect(url_for('index'))
+
 
 @app.route('/delete', methods = ['POST'])
 def delete():
