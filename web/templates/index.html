@@ -75,54 +75,52 @@
       </form>
     </div>
 
-    <div class="banks-header">
-      <h2>bank</h2>
-    </div>
-
     {% for bank in banks %}
     {% set outer_loop = loop %}
-    {{ loop.index }}
-    <table id="bank-table-{{loop.index}}">
-      {% for file in bank %}
-      <tr>
-        <td>
-          <p>{{ file }}</p>
-        </td>
-        <td>
-          <form method="post" action="/delete" enctype="multipart/form-data" style="margin: 0">
-            <input type="hidden" name="file" value="{{file}}" />
-            <input type="hidden" name="bank" value="{{outer_loop.index}}" />
-            <input type=submit name=delete value=delete />
-          </form>
-        </td>
-        <td>
-          <button onclick="showRenameInput('{{file}}', '{{loop.index}}', '{{outer_loop.index}}')">
-            rename
-          </button>
-        </td>
-        {% if loop.index != 1 %}
-        <td>
-          <form method="post" action="/moveup" enctype="multipart/form-data" style="margin: 0">
-            <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
-            <input type="hidden" name="clip-index" value="{{loop.index}}" />
-            <input type=submit name="^" value="^" />
-          </form>
-        </td>
-        {% endif %}
-        {% if loop.index != bank_sizes[outer_loop.index - 1] %}
-        <td>
-          <form method="post" action="/movedown" enctype="multipart/form-data" style="margin: 0">
-            <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
-            <input type="hidden" name="clip-index" value="{{loop.index}}" />
-            <input type=submit name="v" value="v" />
-          </form>
-        </td>
-        {% endif %}
-      </tr>
-      {% else %}
-      <i>none</i>
-      {% endfor %}
-    </table>
+    <div class="bank-table-container">
+      <h4>Bank: {{ loop.index }}</h4>
+      <table id="bank-table-{{loop.index}}">
+        {% for file in bank %}
+        <tr>
+          <td>
+            <p>{{ file }}</p>
+          </td>
+          <td>
+            <form method="post" action="/delete" enctype="multipart/form-data" style="margin: 0">
+              <input type="hidden" name="file" value="{{file}}" />
+              <input type="hidden" name="bank" value="{{outer_loop.index}}" />
+              <input type=submit name=delete value=delete />
+            </form>
+          </td>
+          <td>
+            <button onclick="showRenameInput('{{file}}', '{{loop.index}}', '{{outer_loop.index}}')">
+              rename
+            </button>
+          </td>
+          {% if loop.index != 1 %}
+          <td>
+            <form method="post" action="/moveup" enctype="multipart/form-data" style="margin: 0">
+              <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
+              <input type="hidden" name="clip-index" value="{{loop.index}}" />
+              <input type=submit name="^" value="^" />
+            </form>
+          </td>
+          {% endif %}
+          {% if loop.index != bank_sizes[outer_loop.index - 1] %}
+          <td>
+            <form method="post" action="/movedown" enctype="multipart/form-data" style="margin: 0">
+              <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
+              <input type="hidden" name="clip-index" value="{{loop.index}}" />
+              <input type=submit name="v" value="v" />
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <i>none</i>
+        {% endfor %}
+      </table>
+    </div>
     {% endfor %}
   </div>
 

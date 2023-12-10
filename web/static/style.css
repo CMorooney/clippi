@@ -1,3 +1,15 @@
+/* https://lospec.com/palette-list/cc-29 */
+/* ^^^ color palette ^^^ */
+
+body {
+  background-color: #45444f
+}
+
+h1, h2, h3, h4, h5, h6, label, p, i {
+  font-family: "ProFont";
+  color: #d3a068;
+}
+
 .clip-manager-container {
   border: 3px outset #666;
   padding:10px;
@@ -26,13 +38,6 @@
   flex-direction: row;
   align-items: center;
   gap: 10px;
-}
-
-.banks-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
 }
 
 .loader {
@@ -70,4 +75,21 @@
   background-color: white;
   border: 3px outset #666;
   padding: 20px;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+.bank-table-container {
+  border: 2px dotted #ede19e;
+  margin-top: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+
+@font-face {
+  font-family: 'ProFont';
+  src: url('/static/ProFont.ttf') format('truetype');
 }
