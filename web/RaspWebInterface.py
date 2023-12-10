@@ -7,6 +7,7 @@ from flask import Flask, flash, render_template, Response, request, redirect, ur
 from dotenv import load_dotenv
 from pathlib import Path
 from yt_dlp import YoutubeDL
+from yt_dlp.utils import download_range_func
 
 dotenv_path = Path(f'/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -99,6 +100,14 @@ def addFromYoutube():
         form_data = request.form
         link = form_data.get('link')
         bankIndex = form_data.get('bank')
+        
+        if is_bank_full(bankIndex):
+            flash(f'bank {bankIndex} is full (max {BANK_SIZE})')
+            return
+
+        startTime = int(form_data.get('start-time'))
+        endTime = int(form_data.get('end-time'))
+
         bank_size = get_bank_size(bankIndex)
 
         # the options for this object are in the README of the library
@@ -112,13 +121,17 @@ def addFromYoutube():
             'format-sort': 'codec:h264',
             'verbose': True,
             'paths': { 'home': f'{bank_path(bankIndex)}/' },
-            'outtmpl': { 'default': f'{str(bank_size+1).zfill(2)}__%(title)s.%(ext)s' }
+            'outtmpl': { 'default': f'{str(bank_size+1).zfill(2)}__%(title)s.%(ext)s' },
+            'download_ranges': download_range_func(None, [(startTime, endTime)]),
         }
 
-        with YoutubeDL(yt_opts) as ydl:
-            ydl.download(link)
+        try:
+            with YoutubeDL(yt_opts) as ydl:
+                ydl.download(link)
 
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
+        except Exception as e:
+            flash(e)
 
 @app.route('/rename', methods = ['POST'])
 def rename():

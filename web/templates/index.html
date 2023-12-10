@@ -56,6 +56,14 @@
           <input id="youtube-form-link" type="input" name="link" />
         </div>
         <div class="form-input-container">
+          <label for="youtube-form-start-time">start time seconds:</label>
+          <input id="youtube-form-start-time" type="input" name="start-time" value="0" />
+        </div>
+        <div class="form-input-container">
+          <label for="youtube-form-end-time">end time seconds:</label>
+          <input id="youtube-form-end-time" type="input" name="end-time" value="-0" />
+        </div>
+        <div class="form-input-container">
           <label for="youtube-form-bank">Bank:</label>
           <select id="youtube-form-bank" name="bank">
             {% for bank in banks %}
