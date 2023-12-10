@@ -92,6 +92,24 @@
             rename
           </button>
         </td>
+        {% if loop.index != 1 %}
+        <td>
+          <form method="post" action="/moveup" enctype="multipart/form-data" style="margin: 0">
+            <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
+            <input type="hidden" name="clip-index" value="{{loop.index}}" />
+            <input type=submit name="^" value="^" />
+          </form>
+        </td>
+        {% endif %}
+        {% if loop.index != bank_sizes[outer_loop.index - 1] %}
+        <td>
+          <form method="post" action="/movedown" enctype="multipart/form-data" style="margin: 0">
+            <input type="hidden" name="bank-index" value="{{outer_loop.index}}" />
+            <input type="hidden" name="clip-index" value="{{loop.index}}" />
+            <input type=submit name="v" value="v" />
+          </form>
+        </td>
+        {% endif %}
       </tr>
       {% else %}
       <i>none</i>

@@ -27,8 +27,16 @@ def clip_path(bankIndex, clipIndex):
 
     bDir = Path(bank_path(bankIndex))
 
-    fileNames = [file.name for file in bDir.iterdir() if file.name.startswith(f'{paddedClipIndex}__')]    
+    fileNames = sorted([file.name for file in bDir.iterdir() if file.name.startswith(f'{paddedClipIndex}__')]) 
     return f'{bank_path(bankIndex)}/{fileNames[0]}'
+
+def clip_name(bankIndex, clipIndex):
+    paddedClipIndex = str(clipIndex).zfill(2)
+
+    bDir = Path(bank_path(bankIndex))
+
+    fileNames = sorted([file.name for file in bDir.iterdir() if file.name.startswith(f'{paddedClipIndex}__')]) 
+    return fileNames[0]
 
 def allowed_file(filename):
     return Path(filename).suffix == '.mp4'
@@ -45,13 +53,15 @@ def is_bank_full(index):
 @app.route('/')
 def index():
     banks = []
+    bank_sizes = []
 
     for bank_index in range(1, int(BANK_COUNT) + 1):
         bpath = bank_path(bank_index)
-        bank_files = [f for f in listdir(bpath) if isfile(join(bpath, f))]
+        bank_files = sorted([f for f in listdir(bpath) if isfile(join(bpath, f))])
+        bank_sizes.append(len(bank_files))
         banks.append(bank_files)
 
-    return render_template('index.html', banks=banks)
+    return render_template('index.html', banks=banks, bank_sizes=bank_sizes)
 
 @app.route('/upload', methods = ['POST'])
 def upload():
@@ -123,6 +133,43 @@ def rename():
 
         return redirect(url_for('index'))
 
+@app.route('/moveup', methods = ['POST'])
+def moveup():
+    if request.method == 'POST':
+        form_data = request.form
+
+        bIndex = int(form_data.get('bank-index'))
+        cIndex = int(form_data.get('clip-index'))
+        bpath = bank_path(bIndex)
+        filename_moving_up = clip_name(bIndex, cIndex)
+        filename_moving_down = clip_name(bIndex, cIndex - 1)
+
+        new_filename_moving_up = f"{str(cIndex - 1).zfill(2)}__{filename_moving_up.split(f'{str(cIndex).zfill(2)}__')[1]}"
+        new_filename_moving_down = f"{str(cIndex).zfill(2)}__{filename_moving_down.split(f'{str(cIndex - 1).zfill(2)}__')[1]}"
+
+        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{new_filename_moving_up}')
+        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{new_filename_moving_down}')
+
+        return redirect(url_for('index'))
+
+@app.route('/movedown', methods = ['POST'])
+def movedown():
+    if request.method == 'POST':
+        form_data = request.form
+
+        bIndex = int(form_data.get('bank-index'))
+        cIndex = int(form_data.get('clip-index'))
+        bpath = bank_path(bIndex)
+        filename_moving_down = clip_name(bIndex, cIndex)
+        filename_moving_up = clip_name(bIndex, cIndex + 1)
+
+        new_filename_moving_down = f"{str(cIndex + 1).zfill(2)}__{filename_moving_down.split(f'{str(cIndex).zfill(2)}__')[1]}"
+        new_filename_moving_up = f"{str(cIndex).zfill(2)}__{filename_moving_up.split(f'{str(cIndex + 1).zfill(2)}__')[1]}"
+
+        os.rename(f'{bpath}/{filename_moving_up}', f'{bpath}/{new_filename_moving_up}')
+        os.rename(f'{bpath}/{filename_moving_down}', f'{bpath}/{new_filename_moving_down}')
+
+        return redirect(url_for('index'))
 
 @app.route('/delete', methods = ['POST'])
 def delete():
