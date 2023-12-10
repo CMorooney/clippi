@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 from flask import Flask, flash, render_template, Response, request, redirect, url_for
 from dotenv import load_dotenv
 from pathlib import Path
+from yt_dlp import YoutubeDL
 
 dotenv_path = Path(f'/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -67,6 +68,25 @@ def upload():
                 else:
                     p = f'{bank_path(bank_index)}/{f.filename}'
                     f.save(p)
+
+        return redirect(url_for('index'))
+
+@app.route('/addFromYoutube', methods = ['POST'])
+def addFromYoutube():
+    if request.method == 'POST':
+        form_data = request.form
+        link = form_data.get('link')
+        bankIndex = form_data.get('bank')
+
+        yt_opts = {
+            'format-sort': 'codec:h264',
+            'verbose': True,
+            'paths': { 'home': f'{bank_path(bankIndex)}/' },
+            'output': 'i%(title)s.%(ext)s'
+        }
+
+        with YoutubeDL(yt_opts) as ydl:
+            ydl.download(link)
 
         return redirect(url_for('index'))
 

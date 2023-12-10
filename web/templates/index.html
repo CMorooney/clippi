@@ -1,46 +1,105 @@
 <html>
-  <head>
-  </head>
-  <body>
+
+<head>
+  <title>clippi</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script type="text/javascript" src="{{url_for ('static', filename='script.js')}}"></script>
+</head>
+
+<body>
+  <div class="clip-manager-container">
+
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     {% endwith %}
-    <h2>upload:</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <input type="file" name="file" />
-      <select name="bank">
-        {% for bank in banks %}
-	  <option value={{loop.index}}>{{loop.index}}</option>
-        {% endfor %}
-        </select>
-      <input type="submit" value="Upload" />
-    </form>
-    <h2>banks:</h2>
+
+    <div class="upload-section-header">
+      <h2>UPLOAD</h2>
+      <label for="source-form-source">from</label>
+      <select id="source-form-source">
+        <option value="youtube">youtube</option>
+        <option value="local">local</option>
+      </select>
+    </div>
+
+    <div class="form-input-container">
+    </div>
+
+    <div class="upload-section">
+      <form id="upload-form" style="display: none" action="/upload" method="post" enctype="multipart/form-data">
+        <div class="form-input-container">
+          <label for="upload-form-file">File:</label>
+          <input id="upload-form-file" type="file" name="file" />
+        </div>
+        <div class="form-input-container">
+          <label for="upload-form-bank">Bank:</label>
+          <select id="upload-form-bank" name="bank">
+            {% for bank in banks %}
+            <option value={{loop.index}}>{{loop.index}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="submit" value="Upload" />
+      </form>
+
+      <form id="youtube-form" action="/addFromYoutube" method="post" enctype="multipart/form-data">
+        <div class="form-input-container">
+          <label for="youtube-form-link">url:</label>
+          <input id="youtube-form-link" type="input" name="link" />
+        </div>
+        <div class="form-input-container">
+          <label for="youtube-form-bank">Bank:</label>
+          <select id="youtube-form-bank" name="bank">
+            {% for bank in banks %}
+            <option value={{loop.index}}>{{loop.index}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="submit" value="Get" />
+      </form>
+    </div>
+
+    <div class="banks-header">
+      <h2>bank</h2>
+    </div>
+
     {% for bank in banks %}
-      {% set outer_loop = loop %}
-      <h4>bank {{loop.index}}</h4>
-      <table>
-        {% for file in bank %}
-          <tr>
-            <td>
-              <p>{{ file }}</p>
-            </td>
-            <td>
-              <form method="post" action="/delete" enctype="multipart/form-data">
-		  <input type="hidden" name="file" value="{{file}}" />
-		  <input type="hidden" name="bank" value="{{outer_loop.index}}" />
-                  <input type=submit name=delete value=delete />
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
+    {% set outer_loop = loop %}
+    {{ loop.index }}
+    <table id="bank-table-{{loop.index}}">
+      {% for file in bank %}
+      <tr>
+        <td>
+          <p>{{ file }}</p>
+        </td>
+        <td>
+          <form method="post" action="/delete" enctype="multipart/form-data" style="margin: 0">
+            <input type="hidden" name="file" value="{{file}}" />
+            <input type="hidden" name="bank" value="{{outer_loop.index}}" />
+            <input type=submit name=delete value=delete />
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <i>none</i>
+      {% endfor %}
+    </table>
     {% endfor %}
-  </body>
+  </div>
+
+  <script>
+    (function () {
+      // this function is in script.js
+      // just calling it here since the document will be ready
+      init();
+    })();
+  </script>
+</body>
+
 </html>
