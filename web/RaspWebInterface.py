@@ -18,6 +18,9 @@ BANK_SIZE = os.getenv('BANK_SIZE')
 
 app=Flask(__name__)
 
+def sanitize_clip_name(unsanitized):
+    return unsanitized.replace('\'','').replace('__', '_').replace('\/', '').replace('\\', '')
+
 def bank_path(bankIndex):
     paddedBankIndex = str(bankIndex).zfill(2)
     return f'{BANKS_PATH}/{paddedBankIndex}'
@@ -85,7 +88,7 @@ def upload():
                     flash(f'bank {bank_index} is full (max {BANK_SIZE})')
                 else:
                     bank_size = get_bank_size(bank_index)
-                    p = f'{bank_path(bank_index)}/{str(bank_size+1).zfill(2)}__{f.filename}'
+                    p = f'{bank_path(bank_index)}/{str(bank_size+1).zfill(2)}__{sanitize_clip_name(f.filename)}'
                     f.save(p)
 
         return redirect(url_for('index'))
