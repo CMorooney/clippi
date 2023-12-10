@@ -29,10 +29,14 @@ def video_path(bankIndex, videoIndex):
 def allowed_file(filename):
     return Path(filename).suffix == '.mp4'
 
-def is_bank_full(index):
+def get_bank_size(index):
     bpath = bank_path(index)
     bank_files = [f for f in listdir(bpath) if isfile(join(bpath, f))]
-    return len(bank_files) == BANK_SIZE
+    return len(bank_files)
+
+def is_bank_full(index):
+    bank_size = get_bank_size(index)
+    return bank_size == BANK_SIZE
 
 @app.route('/')
 def index():
@@ -66,7 +70,8 @@ def upload():
                 elif is_bank_full(bank_index):
                     flash(f'bank {bank_index} is full (max {BANK_SIZE})')
                 else:
-                    p = f'{bank_path(bank_index)}/{f.filename}'
+                    bank_size = get_bank_size(bank_index)
+                    p = f'{bank_path(bank_index)}/{str(bank_size+1).zfill(2)}__{f.filename}'
                     f.save(p)
 
         return redirect(url_for('index'))
@@ -77,12 +82,20 @@ def addFromYoutube():
         form_data = request.form
         link = form_data.get('link')
         bankIndex = form_data.get('bank')
+        bank_size = get_bank_size(bankIndex)
 
+        # the options for this object are in the README of the library
+        # but all the examples are fro invoking via command line,
+        # where the arg names are all a little differents sometimes.
+        # Took me a while to find the proper key to match the cli `-o` output flag
+        # but I found it here
+        # https://github.com/yt-dlp/yt-dlp/blob/0b6f829b1dfda15d3c1d7d1fbe4ea6102c26dd24/yt_dlp/YoutubeDL.py#L167
+        # in the YoutubeDL class source (it was outtmpl)
         yt_opts = {
             'format-sort': 'codec:h264',
             'verbose': True,
             'paths': { 'home': f'{bank_path(bankIndex)}/' },
-            'output': 'i%(title)s.%(ext)s'
+            'outtmpl': { 'default': f'{str(bank_size+1).zfill(2)}__%(title)s.%(ext)s' }
         }
 
         with YoutubeDL(yt_opts) as ydl:
