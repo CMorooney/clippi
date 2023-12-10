@@ -15,3 +15,8 @@ function uploadSourceChanged(e) {
         uploadForm.style.display = "flex";
     }
 }
+
+function showLoader() {
+    const modal = document.getElementById("loadingModal");
+    modal.style.display = "flex";
+}

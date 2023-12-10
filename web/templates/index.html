@@ -32,7 +32,7 @@
     </div>
 
     <div class="upload-section">
-      <form id="upload-form" style="display: none" action="/upload" method="post" enctype="multipart/form-data">
+      <form id="upload-form" style="display: none" action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
         <div class="form-input-container">
           <label for="upload-form-file">File:</label>
           <input id="upload-form-file" type="file" name="file" />
@@ -48,7 +48,7 @@
         <input type="submit" value="Upload" />
       </form>
 
-      <form id="youtube-form" action="/addFromYoutube" method="post" enctype="multipart/form-data">
+      <form id="youtube-form" action="/addFromYoutube" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
         <div class="form-input-container">
           <label for="youtube-form-link">url:</label>
           <input id="youtube-form-link" type="input" name="link" />
@@ -91,6 +91,12 @@
       {% endfor %}
     </table>
     {% endfor %}
+  </div>
+
+
+  <div id="loadingModal" class="modalWindow">
+    <div class="loader">
+    </div>
   </div>
 
   <script>
