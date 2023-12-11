@@ -26,6 +26,11 @@ for x in range(1, int(BANK_COUNT) + 1):
 
 pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
 
+GPIO.setmode(GPIO.BCM)
+
+power_led_pin = 27
+GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
+
 button1_pin = 22;
 button2_pin = 5;
 button3_pin = 6;
@@ -33,7 +38,6 @@ button4_pin = 13;
 button5_pin = 19;
 button6_pin = 26;
 
-GPIO.setmode(GPIO.BCM)
 GPIO.setup(button1_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button3_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -47,6 +51,8 @@ button3_down = False;
 button4_down = False;
 button5_down = False;
 button6_down = False;
+
+GPIO.output(power_led_pin, GPIO.HIGH)
 
 while 1:
   button1_down = not GPIO.input(button1_pin)
@@ -93,3 +99,5 @@ while 1:
   pixels[11] = (0, 0, 0, pc6)
 
   pixels.show()
+
+GPIO.output(power_led_pin, GPIO.HIGH)
