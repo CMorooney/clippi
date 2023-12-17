@@ -13,91 +13,90 @@ APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = os.getenv('BANK_COUNT')
 
-
+# Create bank directories if they don't exist
 for x in range(1, int(BANK_COUNT) + 1):
     path = f'{BANKS_PATH}/{str(x).zfill(2)}'
-    print(f'create path {path}')
-    # Create directory /path/to/nested/directory if it doesn't already exist
     try:
         original_umask = os.umask(0)
         os.makedirs(path, mode=0o777, exist_ok=True)
     finally:
         os.umask(original_umask)
 
+# init neo pixels
 pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
 
 GPIO.setmode(GPIO.BCM)
 
+# power on GPIO
 power_led_pin = 27
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
 
-button1_pin = 22;
-button2_pin = 5;
-button3_pin = 6;
-button4_pin = 13;
-button5_pin = 19;
-button6_pin = 26;
+# set up button GPIO
+mode_button_pin = 22;
+prev_button_pin = 5;
+play_pause_button_pin = 6;
+next_button_pin = 13;
+hold_button_pin = 19;
+shift_button_pin = 26;
 
-GPIO.setup(button1_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button3_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button4_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button5_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button6_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(mode_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(prev_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(play_pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(next_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(hold_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(shift_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-button1_down = False;
-button2_down = False;
-button3_down = False;
-button4_down = False;
-button5_down = False;
-button6_down = False;
+# clip actions
+def change_mode():
+    print('change_mode')
 
+def previous_clip():
+    print('previous clip')
+
+def play_pause():
+    print('play pause')
+
+def next_clip():
+    print('next clip')
+
+def hold_current_clip():
+    print('hold current clip')
+
+def shift_button():
+    print('shift button')
+
+# set up button GPIO callbacks
+button_bounce_time = 200
+
+def button_pushed(button):
+        if button == mode_button_pin:
+            change_mode()
+        elif button == prev_button_pin:
+            previous_clip()
+        elif button == play_pause_button_pin:
+            play_pause()
+        elif button == next_button_pin:
+            next_clip()
+        elif button == hold_button_pin:
+            hold_current_clip()
+        elif button == shift_button_pin:
+            shift_button()
+
+GPIO.add_event_detect(mode_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+GPIO.add_event_detect(prev_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+GPIO.add_event_detect(next_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+GPIO.add_event_detect(hold_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+
+# show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
+
+def nothing():
+    return 1
 
 while 1:
-  button1_down = not GPIO.input(button1_pin)
-  button2_down = not GPIO.input(button2_pin)
-  button3_down = not GPIO.input(button3_pin)
-  button4_down = not GPIO.input(button4_pin)
-  button5_down = not GPIO.input(button5_pin)
-  button6_down = not GPIO.input(button6_pin)
+    nothing()
 
-  pc1 = 255 if button1_down else 0
-  pixels[0] = (0, 0, 0, pc1)
-  pixels[0] = (0, 0, 0, pc1)
-  pixels[1] = (0, 0, 0, pc1)
-  pixels[1] = (0, 0, 0, pc1)
-
-  pc2 = 255 if button2_down else 0
-  pixels[2] = (0, 0, 0, pc2)
-  pixels[2] = (0, 0, 0, pc2)
-  pixels[3] = (0, 0, 0, pc2)
-  pixels[3] = (0, 0, 0, pc2)
-
-  pc3 = 255 if button3_down else 0
-  pixels[4] = (0, 0, 0, pc3)
-  pixels[4] = (0, 0, 0, pc3)
-  pixels[5] = (0, 0, 0, pc3)
-  pixels[5] = (0, 0, 0, pc3)
-
-  pc4 = 255 if button4_down else 0
-  pixels[6] = (0, 0, 0, pc4)
-  pixels[6] = (0, 0, 0, pc4)
-  pixels[7] = (0, 0, 0, pc4)
-  pixels[7] = (0, 0, 0, pc4)
-
-  pc5 = 255 if button5_down else 0
-  pixels[8] = (0, 0, 0, pc5)
-  pixels[8] = (0, 0, 0, pc5)
-  pixels[9] = (0, 0, 0, pc5)
-  pixels[9] = (0, 0, 0, pc5)
-
-  pc6 = 255 if button6_down else 0
-  pixels[10] = (0, 0, 0, pc6)
-  pixels[10] = (0, 0, 0, pc6)
-  pixels[11] = (0, 0, 0, pc6)
-  pixels[11] = (0, 0, 0, pc6)
-
-  pixels.show()
-
-GPIO.output(power_led_pin, GPIO.HIGH)
+# show power off
+GPIO.output(power_led_pin, GPIO.LOW)
