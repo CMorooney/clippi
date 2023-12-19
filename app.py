@@ -3,6 +3,9 @@ import time
 import board
 import RPi.GPIO as GPIO
 import neopixel
+import subprocess
+import keyboard
+from pexpect import spawn
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -12,6 +15,8 @@ load_dotenv(dotenv_path=dotenv_path)
 APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = os.getenv('BANK_COUNT')
+
+GPIO.setmode(GPIO.BCM)
 
 # Create bank directories if they don't exist
 for x in range(1, int(BANK_COUNT) + 1):
@@ -25,11 +30,12 @@ for x in range(1, int(BANK_COUNT) + 1):
 # init neo pixels
 pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
 
-GPIO.setmode(GPIO.BCM)
-
 # power on GPIO
 power_led_pin = 27
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
+
+# start playing video (todo, playlist)
+mplayer_spawn = spawn('mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet "/home/calvin/App/__CONTENT/01/03__Carrier Fortress at Sea - Panasonic 3DO - Archive Gameplay 🎮.mp4"')
 
 # set up button GPIO
 mode_button_pin = 22;
@@ -54,7 +60,7 @@ def previous_clip():
     print('previous clip')
 
 def play_pause():
-    print('play pause')
+    mplayer_spawn.write("pause\n")
 
 def next_clip():
     print('next clip')
@@ -92,11 +98,8 @@ GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bo
 # show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
 
-def nothing():
-    return 1
 
-while 1:
-    nothing()
+keyboard.wait()
 
 # show power off
 GPIO.output(power_led_pin, GPIO.LOW)
