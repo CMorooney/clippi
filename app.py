@@ -5,6 +5,8 @@ import RPi.GPIO as GPIO
 import neopixel
 import subprocess
 import keyboard
+import queue
+from threading import Thread
 from pexpect import spawn
 from dotenv import load_dotenv
 from pathlib import Path
@@ -16,7 +18,12 @@ APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = os.getenv('BANK_COUNT')
 
+total_pixels = 12
+
 GPIO.setmode(GPIO.BCM)
+
+# using a queue to issue commands to the mplayer slave in a thread
+mplayer_command_queue = queue.Queue()
 
 # Create bank directories if they don't exist
 for x in range(1, int(BANK_COUNT) + 1):
@@ -44,7 +51,6 @@ play_pause_button_pin = 6;
 next_button_pin = 13;
 hold_button_pin = 19;
 shift_button_pin = 26;
-
 GPIO.setup(mode_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(prev_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(play_pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -60,7 +66,7 @@ def previous_clip():
     print('previous clip')
 
 def play_pause():
-    mplayer_spawn.write("pause\n")
+    mplayer_command_queue.put("pause\n")
 
 def next_clip():
     print('next clip')
@@ -72,8 +78,6 @@ def shift_button():
     print('shift button')
 
 # set up button GPIO callbacks
-button_bounce_time = 200
-
 def button_pushed(button):
         if button == mode_button_pin:
             change_mode()
@@ -87,7 +91,7 @@ def button_pushed(button):
             hold_current_clip()
         elif button == shift_button_pin:
             shift_button()
-
+button_bounce_time = 200
 GPIO.add_event_detect(mode_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 GPIO.add_event_detect(prev_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
@@ -97,6 +101,44 @@ GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bo
 
 # show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
+
+def neopixel_update():
+  # request current percent_pos from mplayer
+  mplayer_spawn.write("pausing_keep_force get_percent_pos\n")
+  # wait for proper response
+  mplayer_spawn.expect_exact(["ANS_PERCENT_POSITION="])
+
+  # parse response
+  percent = int(mplayer_spawn.readline().rstrip())
+
+  # number of pixels to light
+  numPixels = percent/(100/total_pixels)
+
+  for pixel_index in range(total_pixels):
+    if pixel_index > numPixels:
+      pixels[pixel_index] = (0, 0, 0, 0)
+    else:
+      pixels[pixel_index] = (0, 0, 0, 150)
+
+  pixels.show()
+
+
+def mplayer_command_thread_execute():
+  while True:
+      # dump the command queue into the stdin
+      while not mplayer_command_queue.empty():
+          command = mplayer_command_queue.get()
+          mplayer_spawn.write(command)
+          time.sleep(0.1)
+
+      # update neopixel progress indication
+      neopixel_update()
+
+      time.sleep(0.2)
+
+mplayer_command_thread = Thread(target = mplayer_command_thread_execute)
+mplayer_command_thread.daemon=True
+mplayer_command_thread.start()
 
 keyboard.wait()
 
