@@ -35,7 +35,7 @@ power_led_pin = 27
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
 
 # start playing video (todo, playlist)
-mplayer_spawn = spawn('mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet "/home/calvin/App/__CONTENT/01/03__Carrier Fortress at Sea - Panasonic 3DO - Archive Gameplay 🎮.mp4"')
+mplayer_spawn = spawn('/usr/bin/mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet "/home/calvin/App/__CONTENT/01/03__Carrier Fortress at Sea - Panasonic 3DO - Archive Gameplay 🎮.mp4"')
 
 # set up button GPIO
 mode_button_pin = 22;
@@ -97,7 +97,6 @@ GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bo
 
 # show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
-
 
 keyboard.wait()
 
