@@ -6,27 +6,38 @@ import neopixel
 import subprocess
 import keyboard
 import queue
+import busio
 from threading import Thread
 from pexpect import spawn
 from dotenv import load_dotenv
 from pathlib import Path
 from os import listdir
+from adafruit_ht16k33 import segments
 
+#################################### init, config, and constants
+# load .env into os env
 dotenv_path = Path(f'/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
+# get .env constants
 APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = os.getenv('BANK_COUNT')
 
+# pixels in neopixel array
 total_pixels = 12
 
+# software-debouncing in ms
+button_bounce_time = 200
+
+# how we will address pins
 GPIO.setmode(GPIO.BCM)
 
-# using a queue to issue commands to the mplayer slave in a thread
+# queue to issue commands to the mplayer slave in a thread
+# add commands (including newline) and they will be executed in main clip loop
 mplayer_command_queue = queue.Queue()
 
-# Create bank directories if they don't exist
+# create bank directories if they don't exist
 for x in range(1, int(BANK_COUNT) + 1):
     path = f'{BANKS_PATH}/{str(x).zfill(2)}'
     try:
@@ -35,19 +46,39 @@ for x in range(1, int(BANK_COUNT) + 1):
     finally:
         os.umask(original_umask)
 
-# init neo pixels
+current_bank = 1
+current_clip = 1
+
+#################################### init 7-Segment display
+# create the i2C interface.
+i2c = busio.I2C(board.SCL, board.SDA)
+
+# create the segment class
+segment_display = segments.Seg7x4(i2c)
+
+# clear the segment display
+segment_display.fill(0)
+
+# todo: dynamic banks
+# display bank number
+segment_display[0] = '0'
+segment_display[1] = '1'
+
+##################################### init neo pixels
 pixels = neopixel.NeoPixel(board.D18, 12, auto_write=False, pixel_order=neopixel.GRBW)
 
-# power on GPIO
+##################################### setup power on LED
 power_led_pin = 27
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
 
+##################################### mplayer start playlist
+files = sorted(os.listdir(BANKS_PATH + '/' + str(current_bank).zfill(2) + '/'))
 # get videos in bank directory as a single string
-videos_string = ' '.join(sorted(map(lambda f: BANKS_PATH + '/' + '01/' + f.replace(' ', '\ '), os.listdir(BANKS_PATH + '/' + '01/'))))
-# start playing playlist
+videos_string = ' '.join(sorted(map(lambda f: BANKS_PATH + '/' + str(current_bank).zfill(2) + '/' + f.replace(' ', '\ '), files)))
+# start
 mplayer_spawn = spawn('/usr/bin/mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet ' + videos_string)
 
-# set up button GPIO
+##################################### button setup
 mode_button_pin = 22;
 prev_button_pin = 5;
 play_pause_button_pin = 6;
@@ -61,7 +92,7 @@ GPIO.setup(next_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(hold_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(shift_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# clip actions
+###################################### button callbacks
 def change_mode():
     print('change_mode')
 
@@ -80,7 +111,7 @@ def hold_current_clip():
 def shift_button():
     print('shift button')
 
-# set up button GPIO callbacks
+####################################### set button callbacks
 def button_pushed(button):
         if button == mode_button_pin:
             change_mode()
@@ -94,7 +125,6 @@ def button_pushed(button):
             hold_current_clip()
         elif button == shift_button_pin:
             shift_button()
-button_bounce_time = 200
 GPIO.add_event_detect(mode_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 GPIO.add_event_detect(prev_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
@@ -102,9 +132,10 @@ GPIO.add_event_detect(next_button_pin, GPIO.FALLING, callback=button_pushed, bou
 GPIO.add_event_detect(hold_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
 
-# show power on
+######################################### show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
 
+######################################### neopixel updates
 def neopixel_update(percent):
   # can be 0-255
   max_brightness = 150;
@@ -130,7 +161,15 @@ def neopixel_update(percent):
 
   pixels.show()
 
+######################################### 7-segment display updates
+def clip_segment_update(clip_index):
+  # padded and adjusted string of clip_index, e.g clip_index 0 becomes "01"
+  padded_clip_str = str(clip_index + 1).zfill(2)
+  # set display values
+  segment_display[2] = padded_clip_str[0]
+  segment_display[3] = padded_clip_str[1]
 
+######################################## MAIN MPLAYER EXECUTION THREAD LOOP
 def mplayer_command_thread_execute():
   while True:
       # dump the command queue into the stdin
@@ -138,6 +177,15 @@ def mplayer_command_thread_execute():
           command = mplayer_command_queue.get()
           mplayer_spawn.write(command)
           time.sleep(0.1)
+          
+      # request current file playing
+      mplayer_spawn.write("pausing_keep_force get_property filename\n")
+      mplayer_spawn.expect_exact(["ANS_filename="])
+      filename = str(mplayer_spawn.readline().rstrip()).replace('\'', '')
+
+      # get the index of the filename in the global list of files
+      # and use it to update the segmented display
+      clip_segment_update(files.index(filename[1:]))
 
       # request current percent_pos from mplayer
       mplayer_spawn.write("pausing_keep_force get_percent_pos\n")
