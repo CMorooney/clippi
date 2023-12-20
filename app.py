@@ -36,7 +36,7 @@ for x in range(1, int(BANK_COUNT) + 1):
         os.umask(original_umask)
 
 # init neo pixels
-pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
+pixels = neopixel.NeoPixel(board.D18, 12, auto_write=False, pixel_order=neopixel.GRBW)
 
 # power on GPIO
 power_led_pin = 27
@@ -105,23 +105,28 @@ GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bo
 # show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
 
-def neopixel_update():
-  # request current percent_pos from mplayer
-  mplayer_spawn.write("pausing_keep_force get_percent_pos\n")
-  # wait for proper response
-  mplayer_spawn.expect_exact(["ANS_PERCENT_POSITION="])
+def neopixel_update(percent):
+  # can be 0-255
+  max_brightness = 150;
 
-  # parse response
-  percent = int(mplayer_spawn.readline().rstrip())
+  # pixel_step is what each whole pixel represents in %
+  pixel_step = 100/total_pixels
 
-  # number of pixels to light
-  numPixels = percent/(100/total_pixels)
+  # numPixels is the number of pixels starting from 0 to light up fully
+  num_pixels = percent//pixel_step
+
+  # remainder is how much to dimly light the next pixel
+  remainder = percent % pixel_step
+
+  brightness_step = max_brightness/pixel_step
 
   for pixel_index in range(total_pixels):
-    if pixel_index > numPixels:
+    if pixel_index == num_pixels:
+      pixels[pixel_index] = (0, 0, 0, remainder * brightness_step)
+    elif pixel_index > num_pixels:
       pixels[pixel_index] = (0, 0, 0, 0)
     else:
-      pixels[pixel_index] = (0, 0, 0, 150)
+      pixels[pixel_index] = (0, 0, 0, max_brightness)
 
   pixels.show()
 
@@ -134,10 +139,19 @@ def mplayer_command_thread_execute():
           mplayer_spawn.write(command)
           time.sleep(0.1)
 
-      # update neopixel progress indication
-      neopixel_update()
+      # request current percent_pos from mplayer
+      mplayer_spawn.write("pausing_keep_force get_percent_pos\n")
 
-      time.sleep(0.2)
+      # wait for proper response
+      mplayer_spawn.expect_exact(["ANS_PERCENT_POSITION="])
+
+      # parse response to int 1-100
+      percent = int(mplayer_spawn.readline().rstrip())
+
+      # update neopixel progress indication
+      neopixel_update(percent)
+
+      time.sleep(0.1)
 
 mplayer_command_thread = Thread(target = mplayer_command_thread_execute)
 mplayer_command_thread.daemon=True
