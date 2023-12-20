@@ -10,6 +10,7 @@ from threading import Thread
 from pexpect import spawn
 from dotenv import load_dotenv
 from pathlib import Path
+from os import listdir
 
 dotenv_path = Path(f'/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -41,8 +42,10 @@ pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixe
 power_led_pin = 27
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
 
-# start playing video (todo, playlist)
-mplayer_spawn = spawn('/usr/bin/mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet "/home/calvin/App/__CONTENT/01/03__Carrier Fortress at Sea - Panasonic 3DO - Archive Gameplay 🎮.mp4"')
+# get videos in bank directory as a single string
+videos_string = ' '.join(sorted(map(lambda f: BANKS_PATH + '/' + '01/' + f.replace(' ', '\ '), os.listdir(BANKS_PATH + '/' + '01/'))))
+# start playing playlist
+mplayer_spawn = spawn('/usr/bin/mplayer -fs -vo fbdev2 -nosound -vf scale=720:480 -loop 0 -slave -quiet ' + videos_string)
 
 # set up button GPIO
 mode_button_pin = 22;
@@ -63,13 +66,13 @@ def change_mode():
     print('change_mode')
 
 def previous_clip():
-    print('previous clip')
+    mplayer_command_queue.put("pt_step -1\n")
 
 def play_pause():
     mplayer_command_queue.put("pause\n")
 
 def next_clip():
-    print('next clip')
+    mplayer_command_queue.put("pt_step 1\n")
 
 def hold_current_clip():
     print('hold current clip')
