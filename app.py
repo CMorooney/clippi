@@ -30,6 +30,9 @@ total_pixels = 12
 # software-debouncing in ms
 button_bounce_time = 200
 
+# whether or not shift is being held
+shift_pressed = False
+
 # how we will address pins
 GPIO.setmode(GPIO.BCM)
 
@@ -108,29 +111,38 @@ def next_clip():
 def hold_current_clip():
     print('hold current clip')
 
-def shift_button():
-    print('shift button')
+def take_shift_action(button):
+    print('noop')
 
-####################################### set button callbacks
+def take_standard_action(button):
+    if button == mode_button_pin:
+        change_mode()
+    elif button == prev_button_pin:
+        previous_clip()
+    elif button == play_pause_button_pin:
+        play_pause()
+    elif button == next_button_pin:
+        next_clip()
+    elif button == hold_button_pin:
+        hold_current_clip()
+
+
 def button_pushed(button):
-        if button == mode_button_pin:
-            change_mode()
-        elif button == prev_button_pin:
-            previous_clip()
-        elif button == play_pause_button_pin:
-            play_pause()
-        elif button == next_button_pin:
-            next_clip()
-        elif button == hold_button_pin:
-            hold_current_clip()
-        elif button == shift_button_pin:
-            shift_button()
-GPIO.add_event_detect(mode_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
-GPIO.add_event_detect(prev_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
-GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
-GPIO.add_event_detect(next_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
-GPIO.add_event_detect(hold_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
-GPIO.add_event_detect(shift_button_pin, GPIO.FALLING, callback=button_pushed, bouncetime=button_bounce_time)
+    if not shift_pressed:
+        take_standard_action(button)
+    else:
+        take_shift_action(button)
+
+def shift_button_changed(pin):
+    shift_pressed = not GPIO.input(pin)
+    print(shift_pressed)
+
+GPIO.add_event_detect(mode_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(prev_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(next_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(hold_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(shift_button_pin,      GPIO.BOTH,    callback=shift_button_changed, bouncetime=button_bounce_time)
 
 ######################################### show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
@@ -168,6 +180,7 @@ def clip_segment_update(clip_index):
   # set display values
   segment_display[2] = padded_clip_str[0]
   segment_display[3] = padded_clip_str[1]
+  segment_display.colon = True
 
 ######################################## MAIN MPLAYER EXECUTION THREAD LOOP
 def mplayer_command_thread_execute():
