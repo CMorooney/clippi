@@ -33,6 +33,12 @@ button_bounce_time = 200
 # whether or not shift is being held
 shift_pressed = False
 
+# current bank is what is playing
+# pending bank is what the user is selecting via SHIFT
+# on release of SHIFT current_bank should become pending_bank value
+current_bank = 1
+pending_bank = 1
+
 # how we will address pins
 GPIO.setmode(GPIO.BCM)
 
@@ -49,8 +55,6 @@ for x in range(1, int(BANK_COUNT) + 1):
     finally:
         os.umask(original_umask)
 
-current_bank = 1
-current_clip = 1
 
 #################################### init 7-Segment display
 # create the i2C interface.
@@ -111,8 +115,26 @@ def next_clip():
 def hold_current_clip():
     print('hold current clip')
 
+def pending_bank_up():
+    global pending_bank
+    # wrap-around
+    if pending_bank == BANK_COUNT:
+        pending_bank = 1
+    else:
+        pending_bank += 1
+
+def pending_bank_down():
+    global pending_bank
+    if pending_bank == 1:
+        pending_bank = BANK_COUNT
+    else:
+        pending_bank -= 1
+
 def take_shift_action(button):
-    print('noop')
+    if button == prev_button_pin:
+       pending_bank_down()
+    elif button == next_button_pin:
+       pending_bank_up()
 
 def take_standard_action(button):
     if button == mode_button_pin:
@@ -126,16 +148,25 @@ def take_standard_action(button):
     elif button == hold_button_pin:
         hold_current_clip()
 
-
 def button_pushed(button):
+    global shift_pressed
     if not shift_pressed:
         take_standard_action(button)
     else:
         take_shift_action(button)
 
+def shift_released():
+    global current_bank
+    global pending_bank
+    if pending_bank != current_bank:
+        #todo somehow reload/reset mplayer playlist
+        current_bank = pending_bank
+
 def shift_button_changed(pin):
+    global shift_pressed
     shift_pressed = not GPIO.input(pin)
-    print(shift_pressed)
+    if not shift_pressed:
+        shift_released()
 
 GPIO.add_event_detect(mode_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
 GPIO.add_event_detect(prev_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
@@ -180,7 +211,19 @@ def clip_segment_update(clip_index):
   # set display values
   segment_display[2] = padded_clip_str[0]
   segment_display[3] = padded_clip_str[1]
-  segment_display.colon = True
+
+def bank_segment_update():
+  display_bank = current_bank
+  if shift_pressed:
+      display_bank = pending_bank
+
+  # padded and adjusted string of display_bank, e.g display_bank 1 becomes "01"
+  padded_bank_str = str(display_bank).zfill(2)
+
+  # set display values
+  segment_display[0] = padded_bank_str[0]
+  segment_display[1] = padded_bank_str[1]
+
 
 ######################################## MAIN MPLAYER EXECUTION THREAD LOOP
 def mplayer_command_thread_execute():
@@ -199,6 +242,9 @@ def mplayer_command_thread_execute():
       # get the index of the filename in the global list of files
       # and use it to update the segmented display
       clip_segment_update(files.index(filename[1:]))
+      bank_segment_update()
+      # ensure colon is showing after updates, this can get overwritten for whatever reason
+      segment_display.colon = True
 
       # request current percent_pos from mplayer
       mplayer_spawn.write("pausing_keep_force get_percent_pos\n")
