@@ -110,12 +110,12 @@ play_pause_button_pin = 6;
 next_button_pin = 13;
 hold_button_pin = 19;
 shift_button_pin = 26;
-GPIO.setup(mode_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(prev_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(play_pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(next_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(hold_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(shift_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(mode_button_pin,       GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(prev_button_pin,       GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(play_pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(next_button_pin,       GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(hold_button_pin,       GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(shift_button_pin,      GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 ###################################### button callbacks
 def change_mode():
@@ -181,16 +181,16 @@ def shift_released():
 
 def shift_button_changed(pin):
     global shift_pressed
-    shift_pressed = not GPIO.input(pin)
+    shift_pressed = GPIO.input(pin)
     if not shift_pressed:
         shift_released()
 
-GPIO.add_event_detect(mode_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
-GPIO.add_event_detect(prev_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
-GPIO.add_event_detect(play_pause_button_pin, GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
-GPIO.add_event_detect(next_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
-GPIO.add_event_detect(hold_button_pin,       GPIO.FALLING, callback=button_pushed,        bouncetime=button_bounce_time)
-GPIO.add_event_detect(shift_button_pin,      GPIO.BOTH,    callback=shift_button_changed)
+GPIO.add_event_detect(mode_button_pin,       GPIO.RISING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(prev_button_pin,       GPIO.RISING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(play_pause_button_pin, GPIO.RISING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(next_button_pin,       GPIO.RISING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(hold_button_pin,       GPIO.RISING, callback=button_pushed,        bouncetime=button_bounce_time)
+GPIO.add_event_detect(shift_button_pin,      GPIO.BOTH,   callback=shift_button_changed)
 
 ######################################### show power on
 GPIO.output(power_led_pin, GPIO.HIGH)
