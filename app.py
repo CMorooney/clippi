@@ -7,6 +7,9 @@ import subprocess
 import keyboard
 import queue
 import busio
+import sys
+import atexit
+import signal
 from threading import Thread
 from pexpect import spawn
 from dotenv import load_dotenv
@@ -284,7 +287,22 @@ mplayer_command_thread = Thread(target = mplayer_command_thread_execute)
 mplayer_command_thread.daemon=True
 mplayer_command_thread.start()
 
-keyboard.wait()
+def clean_up():
+    GPIO.output(power_led_pin, GPIO.LOW)
+    segment_display[0] = "-"
+    segment_display[1] = "-"
+    segment_display[2] = "-"
+    segment_display[3] = "-"
+    neopixel_update(0)
 
-# show power off
-GPIO.output(power_led_pin, GPIO.LOW)
+def exit_handler():
+    clean_up()
+
+def kill_handler(*args):
+    sys.exit(0)
+
+atexit.register(exit_handler)
+signal.signal(signal.SIGINT, kill_handler)
+signal.signal(signal.SIGTERM, kill_handler)
+
+keyboard.wait()
