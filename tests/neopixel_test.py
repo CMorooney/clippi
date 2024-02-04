@@ -2,7 +2,9 @@ import time
 import board
 import neopixel
 
-pixels = neopixel.NeoPixel(board.D18, 12, brightness=0.1, auto_write=False, pixel_order=neopixel.GRBW)
+print('init neopixel')
+pixels = neopixel.NeoPixel(board.D18, 12, auto_write=False, pixel_order=neopixel.GRBW)
+print('neopixel did init')
 
 time_step = 0.0001
 
