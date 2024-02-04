@@ -9,58 +9,6 @@
   )
 
   (lib_symbols
-    (symbol "+3.3V_1" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
-      (property "Reference" "#PWR" (at 0 -3.81 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Value" "+3.3V_1" (at 0 3.556 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "global power" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Power symbol creates a global label with name \"+3.3V\"" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "+3.3V_1_0_1"
-        (polyline
-          (pts
-            (xy -0.762 1.27)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 0)
-            (xy 0 2.54)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-        (polyline
-          (pts
-            (xy 0 2.54)
-            (xy 0.762 1.27)
-          )
-          (stroke (width 0) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "+3.3V_1_1_1"
-        (pin power_in line (at 0 0 90) (length 0) hide
-          (name "+3.3V" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
     (symbol "+5V_1" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -1526,7 +1474,7 @@
     (uuid 181abe7a-f941-42b6-bd46-aaa3131f90fb)
   )
   (junction (at 46.99 147.32) (diameter 0) (color 0 0 0 0)
-    (uuid 4e47fdea-3d43-4c3f-80c0-0fabcd8954d9)
+    (uuid 368d059f-d2a2-4bb2-aa7b-afb1cb4cad9f)
   )
   (junction (at 43.18 73.66) (diameter 1.016) (color 0 0 0 0)
     (uuid 704d6d51-bb34-4cbf-83d8-841e208048d8)
@@ -1546,6 +1494,9 @@
   (junction (at 67.31 166.37) (diameter 0) (color 0 0 0 0)
     (uuid d7b0e017-1987-431e-a856-53c2121d59e7)
   )
+  (junction (at 40.64 45.72) (diameter 0) (color 0 0 0 0)
+    (uuid db69216f-5a7a-4ce2-bb4f-9090b3d9b1cb)
+  )
   (junction (at 46.99 166.37) (diameter 0) (color 0 0 0 0)
     (uuid e6e0d653-6709-4180-b0b4-c9b86aa49c15)
   )
@@ -1564,10 +1515,6 @@
   (wire (pts (xy 45.72 38.1) (xy 16.51 38.1))
     (stroke (width 0) (type solid))
     (uuid 0694ca26-7b8c-4c30-bae9-3b74fab1e60a)
-  )
-  (wire (pts (xy 46.99 139.7) (xy 46.99 147.32))
-    (stroke (width 0) (type default))
-    (uuid 07ee3f1e-4ffe-420a-a6bb-3db808e2e765)
   )
   (wire (pts (xy 38.1 166.37) (xy 46.99 166.37))
     (stroke (width 0) (type default))
@@ -1625,6 +1572,10 @@
     (stroke (width 0) (type solid))
     (uuid 46f8757d-31ce-45ba-9242-48e76c9438b1)
   )
+  (wire (pts (xy 40.64 45.72) (xy 45.72 45.72))
+    (stroke (width 0) (type default))
+    (uuid 482bf9a2-8183-45f4-8608-eadad6f18ef0)
+  )
   (wire (pts (xy 58.42 43.18) (xy 85.09 43.18))
     (stroke (width 0) (type solid))
     (uuid 4c544204-3530-479b-b097-35aa046ba896)
@@ -1677,7 +1628,7 @@
     (stroke (width 0) (type default))
     (uuid 6eeb941a-216a-4be4-8ede-d5f3e6f09d6c)
   )
-  (wire (pts (xy 40.64 45.72) (xy 45.72 45.72))
+  (wire (pts (xy 40.64 45.72) (xy 39.37 45.72))
     (stroke (width 0) (type solid))
     (uuid 707b993a-397a-40ee-bc4e-978ea0af003d)
   )
@@ -1788,6 +1739,10 @@
   (wire (pts (xy 16.51 71.12) (xy 45.72 71.12))
     (stroke (width 0) (type solid))
     (uuid c373340b-844b-44cd-869b-a1267d366977)
+  )
+  (wire (pts (xy 46.99 142.24) (xy 46.99 147.32))
+    (stroke (width 0) (type default))
+    (uuid c3ece209-c084-49ae-b70d-6c9ed2372951)
   )
   (wire (pts (xy 193.04 87.63) (xy 199.39 87.63))
     (stroke (width 0) (type default))
@@ -2005,6 +1960,10 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid 6a63dbe8-50e2-4ffb-a55f-e0df0f695e9b)
   )
+  (label "3.3v jumper" (at 45.72 25.4 180) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid 706632b6-9c5e-424e-807e-9cfd329c33e4)
+  )
   (label "GPIO22" (at 16.51 43.18 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 831c710c-4564-4e13-951a-b3746ba43c78)
@@ -2072,6 +2031,10 @@
   (label "GPIO18{slash}PCM.CLK" (at 38.1 166.37 180) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid e85fbe24-4e63-4571-886e-03e307eb2ffe)
+  )
+  (label "3.3v jumper" (at 46.99 142.24 90) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid f2c999ea-4211-47e3-9f35-48ee7eca10d2)
   )
   (label "GPIO11{slash}SPI0.SCLK" (at 16.51 53.34 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -2295,7 +2258,7 @@
   (symbol (lib_id "Connector:Conn_01x01_Pin") (at 191.77 30.48 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 11e86e71-8b55-49ab-9d92-624c54c357b7)
-    (property "Reference" "SDA" (at 192.405 25.4 0)
+    (property "Reference" "SDA1" (at 192.405 25.4 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "7S SDA" (at 182.88 30.48 0)
@@ -2311,7 +2274,7 @@
     (instances
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "SDA") (unit 1)
+          (reference "SDA1") (unit 1)
         )
       )
     )
@@ -2412,31 +2375,6 @@
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
           (reference "#PWR020") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_name "+3.3V_1") (lib_id "power:+3.3V") (at 46.99 139.7 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 394c63ee-4aea-4385-8272-f343c5b7aec9)
-    (property "Reference" "#PWR015" (at 46.99 143.51 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (at 46.99 134.62 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "" (at 46.99 139.7 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 46.99 139.7 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid f46150dc-e7eb-4972-90c8-0637e76b4d13))
-    (instances
-      (project "clippi"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "#PWR015") (unit 1)
         )
       )
     )
@@ -2647,7 +2585,7 @@
   (symbol (lib_id "Connector:Conn_01x01_Pin") (at 191.77 33.02 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6f558bce-c04d-46f2-93a9-68747afff267)
-    (property "Reference" "SCL" (at 192.405 27.94 0)
+    (property "Reference" "SCL1" (at 192.405 27.94 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "7S SCL" (at 182.88 33.02 0)
@@ -2663,7 +2601,7 @@
     (instances
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "SCL") (unit 1)
+          (reference "SCL1") (unit 1)
         )
       )
     )
@@ -2785,7 +2723,7 @@
     (property "Datasheet" "~" (at 204.47 87.63 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid aa2bacc1-b83c-4f5b-83b8-149960493517))
+    (pin "1" (uuid aa2bacc1-b83c-4f5b-83b8-149960493518))
     (instances
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -2848,7 +2786,7 @@
   (symbol (lib_id "Connector:Conn_01x01_Pin") (at 191.77 25.4 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid ab9f7c4f-68cc-492d-9dff-8ca92ec743b8)
-    (property "Reference" "5v" (at 192.405 20.32 0)
+    (property "Reference" "5v1" (at 192.405 20.32 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "7S +5v" (at 182.88 25.4 0)
@@ -2864,7 +2802,7 @@
     (instances
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "5v") (unit 1)
+          (reference "5v1") (unit 1)
         )
       )
     )
@@ -3090,7 +3028,7 @@
   (symbol (lib_id "Connector:Conn_01x01_Pin") (at 191.77 27.94 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid f4a8db35-1582-49f6-8ddb-63f6108e5540)
-    (property "Reference" "0v" (at 192.405 22.86 0)
+    (property "Reference" "0v2" (at 192.405 22.86 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "7S 0v" (at 182.88 27.94 0)
@@ -3106,7 +3044,7 @@
     (instances
       (project "clippi"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "0v") (unit 1)
+          (reference "0v2") (unit 1)
         )
       )
     )
