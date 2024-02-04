@@ -201,7 +201,7 @@ GPIO.output(power_led_pin, GPIO.HIGH)
 ######################################### neopixel updates
 def neopixel_update(percent):
   # can be 0-255
-  max_brightness = 150;
+  max_brightness = 50;
 
   # pixel_step is what each whole pixel represents in %
   pixel_step = 100/total_pixels
