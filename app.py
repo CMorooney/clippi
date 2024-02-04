@@ -78,7 +78,7 @@ segment_display[1] = '1'
 pixels = neopixel.NeoPixel(board.D18, 12, auto_write=False, pixel_order=neopixel.GRBW)
 
 ##################################### setup power on LED
-power_led_pin = 27
+power_led_pin = 17
 GPIO.setup(power_led_pin, GPIO.OUT, initial=GPIO.LOW)
 
 ##################################### mplayer start playlist
