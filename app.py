@@ -20,7 +20,7 @@ from adafruit_ht16k33 import segments
 
 #################################### init, config, and constants
 # load .env into os env
-dotenv_path = Path(f'/home/calvin/App/.env')
+dotenv_path = Path('/home/calvin/App/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
 # get .env constants
@@ -32,7 +32,7 @@ BANK_COUNT = int(os.getenv('BANK_COUNT'))
 total_pixels = 12
 
 # software-debouncing in ms
-button_bounce_time = 200
+button_bounce_time = 80
 
 # whether or not shift is being held
 shift_pressed = False
@@ -88,7 +88,7 @@ segment_display = segments.Seg7x4(i2c)
 # clear the segment display
 segment_display.fill(0)
 
-# todo: dynamic banks
+# todo: remember banks
 # display bank number
 segment_display[0] = '0'
 segment_display[1] = '1'
@@ -122,7 +122,7 @@ set_files(current_bank)
 # get videos in bank directory as a single string
 videos_string = ' '.join(sorted(map(lambda f: BANKS_PATH + '/' + str(current_bank).zfill(2) + '/' + '"' + f + '"', files)))
 
-# start
+# start mplayer process
 mplayer_spawn = spawn('/usr/bin/mplayer -fs -vo fbdev2 -osdlevel 0 -nosound -vf scale=720:480 -loop 0 -slave -quiet ' + videos_string)
 
 ##################################### button setup
