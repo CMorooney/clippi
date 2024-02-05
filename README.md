@@ -2,6 +2,7 @@
 
 ![](https://github.com/CMorooney/clippi/blob/master/project_images/final_diagonal.jpg)
 ![](https://github.com/CMorooney/clippi/blob/master/project_images/blender_full_render_2.png)
+![](https://github.com/CMorooney/clippi/blob/master/project_images/web_interface.png)
 
 # Features
 - Store up to 12 banks of 12 clips via web interface
@@ -74,11 +75,4 @@ BANKS_PATH='/home/calvin/App/__CONTENT'
 ```
 
 theoretically they should be able to be defined as whatever but the .gitignore importantly include the `__CONTENT` directory that is my BANKS_PATH. An important but unenforced coupling so just make sure whatever you use as your BANKS_PATH is in your .gitignore
-
-## CHANGES OUTSIDE THE REPO
-
-this was added to `/boot/config.txt`:
-`dtoverlay=gpio-shutdown,gpio_pin=21`
-so that I could use that pin for shut down (though I still have to use SCL pin for boot-up)
-
 `consoleblank=1 vt.global_cursor_default=0` was appended to `/boot/cmdline.txt` to remove boot splash image and console/cursor
