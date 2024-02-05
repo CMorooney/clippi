@@ -1,25 +1,62 @@
-voltage-controlled Video clip player for video synth fodder
+# LZX/Eurorack compatible video clip player
 
-The clip-player app will start automatically on pi boot
+![](https://github.com/CMorooney/clippi/blob/master/project_images/final_diagonal.jpg)
+![](https://github.com/CMorooney/clippi/blob/master/project_images/blender_full_render_2.png)
 
-the auto-start is registered as `player.service` in
+# Features
+- Store up to 12 banks of 12 clips via web interface
+  - upload local videos or provide youtube links
+- Visualize current clip playback % with neopixel ring
+- Visualize current bank/clip with a 7 segment display
+- Random/Sequential playback modes
+- 'Hold' current clip mode
+- All buttons/features can also be invoked with voltage triggers
 
-> /lib/systemd/system/
+# How to use
+- clone repo onto RPi
+- install python3 and set up virtual python env
+- install [pexpect](https://pexpect.readthedocs.io/en/stable/install.html)
+- install [mplayer](http://www.mplayerhq.hu/design7/dload.html)
+- create alias for running python scripts with `sudo` and passing env variables to the virtual env
+  - `alias supy='sudo -E env PATH=$PATH python3
+- added this line to `/boot/config.txt`
+  - `dtoverlay=gpio-shutdown,gpio_pin=21`
+- create/enable system services to start web-app and clip player so they start on boot
+- create `.env` file at repo root
 
-(followed instructions [here](https://www.makeuseof.com/what-is-systemd-launch-programs-raspberry-pi/))
+player.service (the actual clip looper):
+```
+[Unit]
+Description=clippi.player
 
-all the boot service does is start `app.py`
+[Service]
+User=calvin
+ExecStart=sudo -E env PATH=$PATH /home/calvin/env/bin/python3 /home/calvin/App/app.py
+StartLimitIntervalSec=8
+StartLimitBurst=1
+Restart=always
 
-the important dependencies used in `app.py` are:
+[Install]
+WantedBy=multi-user.target
+```
 
-- [MPlayer](http://www.mplayerhq.hu/DOCS/HTML/en/MPlayer.html)
-  - [specifically 'slave mode'](http://www.mplayerhq.hu/DOCS/tech/slave.txt)
-- [pexpect](https://pexpect.readthedocs.io/en/stable/api/pexpect.html)
+app.service (the web-app):
+```
+[Unit]
+Description=clippi
 
-after the clip-player app starts a LAN website/server should start. check web/README.
+[Service]
+ExecStart=/home/calvin/env/bin/python3 /home/calvin/App/web/RaspWebInterface.py
+Restart=always
 
-note -- in order for this to succeed there must be an `.env` file at App root with the folling variables
+[Install]
+WantedBy=default.target
+```
 
+I more/less followed instructions [here](https://www.makeuseof.com/what-is-systemd-launch-programs-raspberry-pi/)
+to set up the system services
+
+the content in the `.env` file you created should look like this:
 ```
 WEB_APP_SECRET_KEY=your_secret_key
 BANK_COUNT=number
@@ -29,7 +66,6 @@ BANKS_PATH=path_to_banks
 ```
 
 for my working prototype the values (outside of the secret, lol) are:
-
 ```
 BANK_COUNT=12
 BANK_SIZE=12
