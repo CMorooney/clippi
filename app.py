@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import board
 import RPi.GPIO as GPIO
@@ -28,6 +29,27 @@ APP_PATH = os.getenv('APP_PATH')
 BANKS_PATH = os.getenv('BANKS_PATH')
 BANK_COUNT = int(os.getenv('BANK_COUNT'))
 
+# load persistent state from file
+f = open('state.json', 'a')
+f.close()
+persistent_state_data = {}
+with open('./state.json', 'r') as stateFile:
+  try:
+    persistent_state_data = json.loads(stateFile.read())
+    stateFile.close()
+    # in case bank count changed and is less than the persisted index
+    persistent_state_data['bank'] = min(BANK_COUNT, persistent_state_data['bank'])
+  except TypeError:
+    print('no')
+    persistent_state_data['should_hold_clip'] = False
+    persistent_state_data['should_shuffle'] = False
+    persistent_state_data['bank'] = 1
+
+def save_settings():
+  with open('state.json', 'w') as stateFile:
+    json.dump(persistent_state_data, stateFile)
+    stateFile.close()
+
 # pixels in neopixel array
 total_pixels = 12
 
@@ -40,26 +62,11 @@ shift_pressed = False
 # current bank is what is playing
 # pending bank is what the user is selecting via SHIFT
 # on release of SHIFT current_bank should become pending_bank value
-current_bank = 1
+current_bank = persistent_state_data['bank'] 
 pending_bank = 1
 
 # index of the current clip within its bank
 current_clip_index = -1
-
-# user toggles this flag with button or voltage
-# and when we grab the percentage of the current clip progress
-# to drive the neopixels, we'll check if we're at the end
-# and seek back to 0 before mplayer has a chance to move on.
-# Could not fine a way to do this with mplayer OOTB
-should_hold_clip = False
-
-# user toggles this flag with button or voltage
-# and when we grab the percentage of the current clip progress
-# to drive the noepixels, we'll check if we're at the end
-# and get a random index to play next before mplayer
-# has a chance to move on.
-# Could not find a way to toggle shuffle in mplayer slave mode
-should_shuffle = False
 
 # how we will address pins
 GPIO.setmode(GPIO.BCM)
@@ -141,8 +148,9 @@ GPIO.setup(shift_button_pin,      GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 ###################################### button callbacks
 def change_mode():
-    global should_shuffle
-    should_shuffle = not should_shuffle
+    global persistent_state_data
+    persistent_state_data['should_shuffle'] = not persistent_state_data['should_shuffle']
+    save_settings()
 
 def previous_clip():
     mplayer_command_queue.put("pt_step -1\n")
@@ -151,16 +159,17 @@ def play_pause():
     mplayer_command_queue.put("pause\n")
 
 def next_clip():
-    global should_shuffle
+    global persistent_state_data
     global current_clip_index
-    if should_shuffle and current_clip_index > -1:
+    if persistent_state_data['should_shuffle'] and current_clip_index > -1:
       mplayer_command_queue.put(f'pt_step {get_next_random_index(current_clip_index)}\n')
-    elif not should_shuffle:
+    elif not persistent_state_data['should_shuffle']:
       mplayer_command_queue.put("pt_step 1\n")
 
 def hold_current_clip():
-    global should_hold_clip
-    should_hold_clip = not should_hold_clip
+    global persistent_state_data
+    persistent_state_data['should_hold_clip'] = not persistent_state_data['should_hold_clip']
+    save_settings()
 
 def pending_bank_up():
     global pending_bank
@@ -204,9 +213,12 @@ def button_pushed(button):
 def shift_released():
     global current_bank
     global pending_bank
+    global persistent_state_data
     if pending_bank != current_bank:
         current_bank = pending_bank
         play_bank(current_bank)
+        persistent_state_data['bank'] = current_bank
+        save_settings()
 
 def shift_button_changed(pin):
     global shift_pressed
@@ -226,8 +238,7 @@ GPIO.output(power_led_pin, GPIO.HIGH)
 
 ######################################### neopixel updates
 def neopixel_update(percent):
-  global should_hold_clip
-  global should_shuffle
+  global persistent_state_data
 
   # can be 0-255
   max_brightness = 50;
@@ -246,18 +257,18 @@ def neopixel_update(percent):
   for pixel_index in range(total_pixels):
     if pixel_index == num_pixels:
       b = remainder * brightness_step
-      if should_hold_clip:
+      if persistent_state_data['should_hold_clip']:
         pixels[pixel_index] = (0, 0, remainder * brightness_step, 0)
-      elif should_shuffle:
+      elif persistent_state_data['should_shuffle']:
         pixels[pixel_index] = (remainder * brightness_step, 0, 0, 0)
       else:
         pixels[pixel_index] = (0, 0, 0, remainder * brightness_step)
     elif pixel_index > num_pixels:
       pixels[pixel_index] = (0, 0, 0, 0)
     else:
-      if should_hold_clip:
+      if persistent_state_data['should_hold_clip']:
         pixels[pixel_index] = (0, 0, max_brightness, 0)
-      elif should_shuffle:
+      elif persistent_state_data['should_shuffle']:
         pixels[pixel_index] = (max_brightness, 0, 0, 0)
       else:
         pixels[pixel_index] = (0, 0, 0, max_brightness)
@@ -295,8 +306,7 @@ def get_next_random_index(current_index):
 
 ######################################## MAIN MPLAYER EXECUTION THREAD LOOP
 def mplayer_command_thread_execute():
-  global should_hold_clip
-  global should_shuffle
+  global persistent_state_data
   global current_clip_index
 
   while True:
@@ -332,12 +342,12 @@ def mplayer_command_thread_execute():
       percent = int(mplayer_spawn.readline().rstrip())
 
       if percent >= 99:
-        if should_hold_clip:
+        if persistent_state_data['should_hold_clip']:
           # seek <value> [type]
           #  - we are using type `2` which is flagging
           #    the value `0` as an absolute position
           mplayer_spawn.write("seek 0 2\n")
-        elif should_shuffle and current_clip_index > -1:
+        elif persistent_state_data['should_shuffle'] and current_clip_index > -1:
             mplayer_spawn.write(f'pt_step {get_next_random_index(current_clip_index)}')
 
       # update neopixel progress indication
