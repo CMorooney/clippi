@@ -7,6 +7,7 @@
 # Features
 - Store up to 12 banks of 12 clips via web interface
   - upload local videos or provide youtube links
+  - re-order and rename clips
 - Visualize current clip playback % with neopixel ring
 - Visualize current bank/clip with a 7 segment display
 - Random/Sequential playback modes
@@ -24,6 +25,7 @@
   - `dtoverlay=gpio-shutdown,gpio_pin=21`
 - create/enable system services to start web-app and clip player so they start on boot
 - create `.env` file at repo root
+- reboot pi, web app should be at http://clippi.local:5000/ once that's complete
 
 player.service (the actual clip looper):
 ```
